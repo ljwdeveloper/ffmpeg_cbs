@@ -1,7 +1,10 @@
-package com.example.ffmpeg_cbs
+package kr.co.cbs.ffmpeg
 
+import android.os.Handler
+import android.os.Looper
 import android.os.Build
 import android.util.Log
+import com.arthenica.smartexception.java.Exceptions
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.ReturnCode
@@ -24,7 +27,7 @@ class FFMpegCBSPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
     methodChannel.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
-    Log.d("FFMpegCBS", "Plugin registered successfully")
+    Log.d("[FFMpegCBS]", "Plugin registered successfully")
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -35,16 +38,21 @@ class FFMpegCBSPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
       "startRecord" -> {
         val command = call.argument<String>("command")
         if (command == null) {
-          Log.e("FFMpegCBS", "Invalid arguments for startRecord")
+          Log.e("[FFMpegCBS]", "Invalid arguments for startRecord")
           result.error("INVALID_ARGUMENT", "Missing command", null)
           return
         }
-        Log.d("FFMpegCBS", "Starting recording with command: $command")
-        startRecording(command)
-        result.success(null)
+        Log.d("[FFMpegCBS]", "Starting recording with command: $command")
+        try {
+          startRecording(command)
+          result.success(null)
+        } catch (e: Exception) {
+          Log.e("[FFMpegCBS]", "Failed to start recording: ${e.message}", e)
+          result.error("START_RECORD_FAILED", "Exception while starting recording", e.localizedMessage)
+        }
       }
       "stopRecord" -> {
-        Log.d("FFMpegCBS", "Stopping recording session")
+        Log.d("[FFMpegCBS]", "Stopping recording session")
         stopRecording()
         result.success(null)
       }
@@ -59,7 +67,7 @@ class FFMpegCBSPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
       { session -> handleFFmpegCompletion(session) },
       { log ->
         log?.let {
-          Log.d("FFMpegCBS", "[Log] ${it.sessionId}: lvl${it.level} ${it.message}")
+          Log.d("[FFMpegCBS]", "[Log] ${it.sessionId}: lvl${it.level} ${it.message}")
         }
       },
       { statistics ->
@@ -75,7 +83,7 @@ class FFMpegCBSPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
 
   private fun handleFFmpegCompletion(session: FFmpegSession?) {
     if (session == null) {
-      Log.e("FFMpegCBS", "Session is null")
+      Log.e("[FFMpegCBS]", "Session is null")
       return
     }
 
@@ -87,38 +95,40 @@ class FFMpegCBSPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHan
     val endTime = session.endTime
     val durationSec = session.duration.toDouble() / 1000.0
 
-    Log.d("FFMpegCBS", "Start: $startTime, End: $endTime, Duration: $durationSec sec")
-    Log.d("FFMpegCBS", "ReturnCode: ${returnCode?.value} Output: $output")
+    Log.d("[FFMpegCBS]", "Start: $startTime, End: $endTime, Duration: $durationSec sec")
+    Log.d("[FFMpegCBS]", "ReturnCode: ${returnCode?.value} Output: $output")
 
     val message = mutableMapOf<String, Any>()
     when {
       ReturnCode.isSuccess(returnCode) -> {
-        Log.d("FFMpegCBS", "Recording SUCCESS")
+        Log.d("[FFMpegCBS]", "Recording SUCCESS")
         message["status"] = "completed"
         message["duration"] = durationSec
       }
       ReturnCode.isCancel(returnCode) -> {
-        Log.d("FFMpegCBS", "Recording CANCELLED")
+        Log.d("[FFMpegCBS]", "Recording CANCELLED")
         message["status"] = "cancelled"
         message["duration"] = durationSec
       }
       else -> {
-        Log.d("FFMpegCBS", "Recording FAILED")
+        Log.d("[FFMpegCBS]", "Recording FAILED")
         message["status"] = "error"
         message["error"] = failStackTrace ?: "Unknown error"
       }
     }
 
-    eventSink?.success(message)
+    Handler(Looper.getMainLooper()).post {
+      eventSink?.success(message)
+    }
   }
 
   override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-    Log.d("FFMpegCBS", "Event channel: onListen")
+    Log.d("[FFMpegCBS]", "Event channel: onListen")
     eventSink = events
   }
 
   override fun onCancel(arguments: Any?) {
-    Log.d("FFMpegCBS", "Event channel: onCancel")
+    Log.d("[FFMpegCBS]", "Event channel: onCancel")
     eventSink = null
   }
 

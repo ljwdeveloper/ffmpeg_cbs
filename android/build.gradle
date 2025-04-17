@@ -1,4 +1,4 @@
-group = "com.example.ffmpeg_cbs"
+group = "kr.co.cbs.ffmpeg"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -18,6 +18,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        flatDir {
+            dirs 'libs'  // classes.jar 위치
+        }
     }
 }
 
@@ -25,7 +28,7 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 android {
-    namespace = "com.example.ffmpeg_cbs"
+    namespace = "kr.co.cbs.ffmpeg"
 
     compileSdk = 35
 
@@ -41,6 +44,10 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
         test.java.srcDirs += "src/test/kotlin"
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+            res.srcDirs += ['src/main/res']  // 리소스 있는 경우만
+        }
     }
 
     defaultConfig {
@@ -50,6 +57,8 @@ android {
     dependencies {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
+        implementation 'com.arthenica:smart-exception-java:0.2.1'
+        implementation files('libs/classes.jar')
     }
 
     testOptions {
@@ -57,14 +66,10 @@ android {
             useJUnitPlatform()
 
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
             }
         }
     }
-}
-
-dependencies {
-    implementation files('lib/ffmpeg-kit.aar')
 }
