@@ -22,8 +22,8 @@ using flutter::MethodResultFunctions;
 
 }  // namespace
 
-TEST(FfmpegCbsPlugin, GetPlatformVersion) {
-  FfmpegCbsPlugin plugin;
+TEST(FFMpegCBSPlugin, GetPlatformVersion) {
+  FFMpegCBSPlugin plugin;
   // Save the reply value from the success callback.
   std::string result_string;
   plugin.HandleMethodCall(

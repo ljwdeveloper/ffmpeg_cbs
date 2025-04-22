@@ -26,5 +26,11 @@ flutter:
         pluginClass: FFMpegCBSPlugin
       ios:
         pluginClass: FFMpegCBSPlugin
-      windows:
-        pluginClass: FFMpegCBSPlugin
+      
+      # 현 프로젝트에에 windows 통합하려 했으나, 앱프로젝트 빌드시
+      # 플러그인 windows측 실행경로 "\windows\x64\plugins\ffmpeg_cbs\Debug\bin\ffmpeg.exe"
+      # 를 못 찾고 대신 "\windows\x64\runner\Debug\bin\ffmpeg.exe"를 계속 찾는 상황.
+
+      # windows:
+      #   pluginClass: FfmpegCbsPluginCApi
+    

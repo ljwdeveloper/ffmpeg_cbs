@@ -6,9 +6,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <ffmpeg_cbs/f_f_mpeg_c_b_s_plugin.h>
+#include <ffmpeg_cbs/ffmpeg_cbs_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  FFMpegCBSPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FFMpegCBSPlugin"));
+  FfmpegCbsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FfmpegCbsPluginCApi"));
 }

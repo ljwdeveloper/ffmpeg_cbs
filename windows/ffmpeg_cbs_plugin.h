@@ -8,17 +8,17 @@
 
 namespace ffmpeg_cbs {
 
-class FfmpegCbsPlugin : public flutter::Plugin {
+class FFMpegCBSPlugin : public flutter::Plugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-  FfmpegCbsPlugin();
+  FFMpegCBSPlugin();
 
-  virtual ~FfmpegCbsPlugin();
+  virtual ~FFMpegCBSPlugin();
 
   // Disallow copy and assign.
-  FfmpegCbsPlugin(const FfmpegCbsPlugin&) = delete;
-  FfmpegCbsPlugin& operator=(const FfmpegCbsPlugin&) = delete;
+  FFMpegCBSPlugin(const FFMpegCBSPlugin&) = delete;
+  FFMpegCBSPlugin& operator=(const FFMpegCBSPlugin&) = delete;
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(

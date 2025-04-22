@@ -6,7 +6,7 @@
 
 void FfmpegCbsPluginCApiRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
-  ffmpeg_cbs::FfmpegCbsPlugin::RegisterWithRegistrar(
+  ffmpeg_cbs::FFMpegCBSPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()
           ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

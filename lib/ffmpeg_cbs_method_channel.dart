@@ -59,7 +59,7 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
       await methodChannel.invokeMethod('startRecord', {'command': command});
       log('[ffmpeg_cbs] startRecord invoked', name: runtimeType.toString());
     } on PlatformException catch (e) {
-      log('[ffmpeg_cbs] startRecord error: ${e.message}',
+      log('[ffmpeg_cbs] startRecord error: ${e.message}\n${e.details}',
           name: runtimeType.toString());
       recordingCompleter = Completer()..complete();
       rethrow;
