@@ -4,6 +4,17 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'ffmpeg_cbs_method_channel.dart';
 
+import 'package:rxdart/rxdart.dart';
+
+export 'package:rxdart/rxdart.dart';
+
+enum RecordingStatus {
+  idle,
+  recording,
+  processing,
+  error,
+}
+
 abstract class FFMpegCBSPlatform extends PlatformInterface {
   /// Constructs a FfmpegCbsPlatform.
   FFMpegCBSPlatform() : super(token: _token);
@@ -42,6 +53,8 @@ abstract class FFMpegCBSPlatform extends PlatformInterface {
     throw UnimplementedError('stopRecord() has not been implemented.');
   }
 
-  Completer<void> recordingCompleter = Completer()..complete();
-  Completer<void> fileProcessCompleter = Completer()..complete();
+  ValueStream<RecordingStatus> get recordingStatusStream {
+    throw UnimplementedError(
+        'recordingStatusStream() has not been implemented.');
+  }
 }

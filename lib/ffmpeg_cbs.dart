@@ -8,6 +8,7 @@
 import 'dart:async';
 
 import 'ffmpeg_cbs_platform_interface.dart';
+export 'ffmpeg_cbs_platform_interface.dart' show RecordingStatus;
 
 class FFMpegCBS {
   Future<String?> getPlatformVersion() {
@@ -31,11 +32,6 @@ class FFMpegCBS {
   /// 마무리작업이 완료된 후의 반환은 ```fileProcessCompleter.future```
   Future<void> stopRecord() async => FFMpegCBSPlatform.instance.stopRecord();
 
-  /// ```startRecord()```부터 ```stopRecord()```시작부분까지를 의미하는 completer.
-  Completer<void> get recordingCompleter =>
-      FFMpegCBSPlatform.instance.recordingCompleter;
-
-  /// ```stopRecord()```부터 마무리작업이 완료되었을 때까지를 의미하는 completer.
-  Completer<void> get fileProcessCompleter =>
-      FFMpegCBSPlatform.instance.fileProcessCompleter;
+  ValueStream<RecordingStatus> get recordingStatusStream =>
+      FFMpegCBSPlatform.instance.recordingStatusStream;
 }

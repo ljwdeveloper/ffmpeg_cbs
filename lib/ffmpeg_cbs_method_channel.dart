@@ -17,6 +17,13 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
   MethodChannelFFMpegCBS() {
     setupListener();
   }
+
+  final _recordingStatusSubject =
+      BehaviorSubject<RecordingStatus>.seeded(RecordingStatus.idle);
+  @override
+  ValueStream<RecordingStatus> get recordingStatusStream =>
+      _recordingStatusSubject.stream;
+
   @override
   void setupListener() {
     // TODO: implement setupListener
@@ -24,6 +31,8 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
       if (event is! Map) {
         log('[ffmpeg_cbs] Recording FAILED!!!! parsing err; event type not "Map"; ${event.runtimeType}',
             name: runtimeType.toString());
+        _recordingStatusSubject.add(RecordingStatus.error);
+        return;
       }
       final parsed = Map<String, dynamic>.from(
         event.map((k, v) => MapEntry(k.toString(), v)),
@@ -32,12 +41,12 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
       if (status == 'error') {
         log('[ffmpeg_cbs] Recording FAILED!!!! ${event['error']}',
             name: runtimeType.toString());
+        _recordingStatusSubject.add(RecordingStatus.error);
       } else {
         log('[ffmpeg_cbs] Recording completed: ${event['duration']} sec',
             name: runtimeType.toString());
+        _recordingStatusSubject.add(RecordingStatus.idle);
       }
-      if (fileProcessCompleter.isCompleted) return;
-      fileProcessCompleter.complete();
     });
   }
 
@@ -51,17 +60,16 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
   @override
   Future<void> startRecordWithCommand(String command) async {
     try {
-      if (!recordingCompleter.isCompleted) {
+      if (recordingStatusStream.value == RecordingStatus.recording) {
         await stopRecord();
-        await fileProcessCompleter.future;
       }
-      recordingCompleter = Completer();
       await methodChannel.invokeMethod('startRecord', {'command': command});
       log('[ffmpeg_cbs] startRecord invoked', name: runtimeType.toString());
+      _recordingStatusSubject.add(RecordingStatus.recording);
     } on PlatformException catch (e) {
       log('[ffmpeg_cbs] startRecord error: ${e.message}\n${e.details}',
           name: runtimeType.toString());
-      recordingCompleter = Completer()..complete();
+      _recordingStatusSubject.add(RecordingStatus.error);
       rethrow;
     }
   }
@@ -69,11 +77,8 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
   @override
   Future<void> stopRecord() async {
     try {
-      if (!recordingCompleter.isCompleted) {
-        recordingCompleter.complete();
-      }
-      fileProcessCompleter = Completer();
       await methodChannel.invokeMethod('stopRecord');
+      _recordingStatusSubject.add(RecordingStatus.processing);
     } on PlatformException catch (e) {
       log('[ffmpeg_cbs] stopRecord error: ${e.message}',
           name: runtimeType.toString());
