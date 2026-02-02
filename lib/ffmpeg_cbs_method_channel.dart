@@ -78,7 +78,7 @@ class MethodChannelFFMpegCBS extends FFMpegCBSPlatform {
   Future<void> stopRecord() async {
     try {
       await methodChannel.invokeMethod('stopRecord');
-      _recordingStatusSubject.add(RecordingStatus.processing);
+      _recordingStatusSubject.add(RecordingStatus.fileProcessing);
     } on PlatformException catch (e) {
       log('[ffmpeg_cbs] stopRecord error: ${e.message}',
           name: runtimeType.toString());

@@ -11,7 +11,7 @@ export 'package:rxdart/rxdart.dart';
 enum RecordingStatus {
   idle,
   recording,
-  processing,
+  fileProcessing,
   error,
 }
 
